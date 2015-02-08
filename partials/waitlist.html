@@ -1,0 +1,17 @@
+
+<form ng-submit="saveParty()" class="form-inline">
+  <div class="form-group">
+    <label class="sr-only" for="partyName">Party Name</label>
+    <input ng-model="party.name" type="text" class="form-control" id="partyName" placeholder="Party Name">
+  </div>
+  <div class="form-group">
+    <label class="sr-only" for="phoneNumber">Phone</label>
+    <input ng-model="party.phone" type="text" class="form-control" id="phoneNumber" placeholder="Phone Number">
+    <label class="sr-only" for="phoneNumber">Size of Party</label>
+    <input ng-model="party.size" type="text" class="form-control" id="sizeOfParty" placeholder="Size of Party">
+  </div>
+  <button type="submit" class="btn btn-primary">Wait!</button>
+</form>
+{{party}}
+<br>
+{{parties}}
