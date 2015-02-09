@@ -13,14 +13,11 @@ angular.module('myApp.controllers', [])
 	.controller('LandingPageController', [function(){
 
 	}])
-	.controller('WaitListController', ['$scope', '$firebase', 'FIREBASE_URL', function($scope, $firebase, FIREBASE_URL){
+	.controller('WaitListController', ['$scope', 'partyService', function($scope, partyService){
 		// connecting $scope.parties to live firebase data
-		var partiesRef = new Firebase(FIREBASE_URL + 'parties');
 
-		//scope is an object that html and js share
-		//collect data from the form and store it in an array
-		$scope.parties = $firebase(partiesRef);
-
+		//binds firebase parties to the scope
+		$scope.parties = partyService.parties;
 		// object to store data from waitlist form
 		$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
 
@@ -29,8 +26,10 @@ angular.module('myApp.controllers', [])
 		// function to save a new party to the waitlist
 		$scope.saveParty = function(){
 			//take party object and put it in the parties array
-			$scope.parties.$add($scope.newParty);
-			$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
+		//	$scope.parties.$add($scope.newParty);
+		//	$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
+		partyService.saveParty($scope.newParty);
+		$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
 		};
 
 		//function to send text message to a party

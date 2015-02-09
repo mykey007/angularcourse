@@ -10,6 +10,22 @@
 // service doesnt have access to the scope object so we need to inject the 
 angular.module('myApp.services', [])
   .value('FIREBASE_URL', 'https://dazzling-torch-8938.firebaseio.com/')
+  
+  .factory('partyService', function($firebase, FIREBASE_URL){
+  	var partiesRef = new Firebase(FIREBASE_URL + 'parties');
+  	var parties = $firebase(partiesRef);
+
+  	var partyServiceObject ={
+  		parties: parties,
+  		saveParty: function(party){
+  			parties.$add(party);
+  		//	$scope.parties.$add($scope.newParty);
+		//	$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
+
+  		}
+  	};
+  	return partyServiceObject;
+  })
   .factory('authService',function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL){
   	var authRef = new Firebase(FIREBASE_URL); //brought over for auth
 	var auth = $firebaseSimpleLogin(authRef);
