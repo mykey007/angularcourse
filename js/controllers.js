@@ -49,39 +49,31 @@ angular.module('myApp.controllers', [])
 			$scope.parties.$save(party.$id);
 		};
 	}])
-	.controller('AuthController', ['$scope', '$firebaseSimpleLogin', '$location', 'FIREBASE_URL', 'authService', function($scope, $firebaseSimpleLogin, $location, FIREBASE_URL, authService){
-		var authRef = new Firebase(FIREBASE_URL);
+	.controller('AuthController', ['$scope', 'authService', function($scope, authService){
 
-		var auth = $firebaseSimpleLogin(authRef);
-
+		//object bound to inputs on the register and login pages
 		$scope.user = {email: '', password: ''};
-		// crate the user
-		//this method returns an angular promise
-		//the server promises to deliver data back. either we get data or there is an error
+
+/*
+you can do this but it's harder to understand 
+and you need to read the html to see what the controller is supposed to do:
+//setting the authSerivce dependency as the scope
+		$scope.authService = authService;
+		//in our templates:
+		ng-click="authService.logout()"
+		*/
+
+		//method to register a new user usign the authService
 		$scope.register = function(){
-			//angular promise ( .then() )
-			auth.$createUser($scope.user.email, $scope.user.password).then(function(data){
-				//checkout what's happening under the hood
-				console.log(data);
-
-				//this is calling from the firebase api
-				//auth.$login('password', $scope.user);
-
-				//instead we want to call a custom login function to handle redirects
-				$scope.login();
-			});
+			authService.register($scope.user);			
 		};
-
+		//method to login a new user usign the authService
 		$scope.login = function(){
 			authService.login($scope.user);
-			
-
 		};
-
+		//method to logout a new user usign the authService
 		$scope.logout = function(){
-			auth.$logout();
-			// redirect users to landing page
-			$location.path('/');
+			authService.logout();
 		};
 	}])
 ;
