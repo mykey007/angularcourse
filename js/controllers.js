@@ -1,14 +1,21 @@
 'use strict';
 
+/* create some services
+	services are javascript functions and properties of related tasks you want to accoomplish
+	code resue and avoidance of repetition.
+	we made FIREBASE_URL to handle the url strings
+
+	*/
+
+
 /* Controllers */
-// 1 619-780-2237
 angular.module('myApp.controllers', [])
 	.controller('LandingPageController', [function(){
 
 	}])
-	.controller('WaitListController', ['$scope', '$firebase', function($scope, $firebase){
+	.controller('WaitListController', ['$scope', '$firebase', 'FIREBASE_URL', function($scope, $firebase, FIREBASE_URL){
 		// connecting $scope.parties to live firebase data
-		var partiesRef = new Firebase('https://dazzling-torch-8938.firebaseio.com/parties');
+		var partiesRef = new Firebase(FIREBASE_URL + 'parties');
 
 		//scope is an object that html and js share
 		//collect data from the form and store it in an array
@@ -29,7 +36,7 @@ angular.module('myApp.controllers', [])
 		//function to send text message to a party
 		$scope.sendTextMessage = function(party){
 			//add object to db
-			var textMessageRef = new Firebase('https://dazzling-torch-8938.firebaseio.com/textMessages');
+			var textMessageRef = new Firebase(FIREBASE_URL + 'textMessages');
 			var textMessages = $firebase(textMessageRef);
 			var newTextMessage = {
 				phoneNumber: party.phone,
@@ -42,8 +49,8 @@ angular.module('myApp.controllers', [])
 			$scope.parties.$save(party.$id);
 		};
 	}])
-	.controller('AuthController', ['$scope', '$firebaseSimpleLogin', '$location', function($scope, $firebaseSimpleLogin, $location){
-		var authRef = new Firebase('https://dazzling-torch-8938.firebaseio.com/');
+	.controller('AuthController', ['$scope', '$firebaseSimpleLogin', '$location', 'FIREBASE_URL', 'authService', function($scope, $firebaseSimpleLogin, $location, FIREBASE_URL, authService){
+		var authRef = new Firebase(FIREBASE_URL);
 
 		var auth = $firebaseSimpleLogin(authRef);
 
@@ -66,12 +73,8 @@ angular.module('myApp.controllers', [])
 		};
 
 		$scope.login = function(){
-			auth.$login('password', $scope.user).then(function(data){
-				console.log(data);
-				// redirect users to /waitlist
-				// get the location service and use the path method (logout too)
-				$location.path('/waitlist');
-			});
+			authService.login($scope.user);
+			
 
 		};
 
