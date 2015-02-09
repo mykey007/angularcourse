@@ -42,7 +42,7 @@ angular.module('myApp.controllers', [])
 			$scope.parties.$save(party.$id);
 		};
 	}])
-	.controller('AuthController', ['$scope', '$firebaseSimpleLogin', function($scope, $firebaseSimpleLogin){
+	.controller('AuthController', ['$scope', '$firebaseSimpleLogin', '$location', function($scope, $firebaseSimpleLogin, $location){
 		var authRef = new Firebase('https://dazzling-torch-8938.firebaseio.com/');
 
 		var auth = $firebaseSimpleLogin(authRef);
@@ -52,18 +52,33 @@ angular.module('myApp.controllers', [])
 		//this method returns an angular promise
 		//the server promises to deliver data back. either we get data or there is an error
 		$scope.register = function(){
-			//angular promise
+			//angular promise ( .then() )
 			auth.$createUser($scope.user.email, $scope.user.password).then(function(data){
+				//checkout what's happening under the hood
 				console.log(data);
-				auth.$login('password', $scope.user);
+
+				//this is calling from the firebase api
+				//auth.$login('password', $scope.user);
+
+				//instead we want to call a custom login function to handle redirects
+				$scope.login();
 			});
 		};
 
 		$scope.login = function(){
 			auth.$login('password', $scope.user).then(function(data){
 				console.log(data);
+				// redirect users to /waitlist
+				// get the location service and use the path method (logout too)
+				$location.path('/waitlist');
 			});
 
+		};
+
+		$scope.logout = function(){
+			auth.$logout();
+			// redirect users to landing page
+			$location.path('/');
 		};
 	}])
 ;
