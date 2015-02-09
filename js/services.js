@@ -4,12 +4,13 @@
 
 
 // Demonstrate how to register services
+
 // In this case it is a simple value service.
 // 90% of the time, either .value() or .factory() will get the job done for services 
 // service doesnt have access to the scope object so we need to inject the 
 angular.module('myApp.services', [])
   .value('FIREBASE_URL', 'https://dazzling-torch-8938.firebaseio.com/')
-  .factory('authService',function($firebaseSimpleLogin, $location, FIREBASE_URL){
+  .factory('authService',function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL){
   	var authRef = new Firebase(FIREBASE_URL); //brought over for auth
 	var auth = $firebaseSimpleLogin(authRef);
 
@@ -35,6 +36,23 @@ angular.module('myApp.services', [])
 			$location.path('/');
   		}
   	};
+
+
+  	//have a current user object saved when logged in and deleted on logout
+  	//adding this for login/logout links to appear
+
+  	//firebase exxample
+  	$rootScope.$on("$firebaseSimpleLogin:login", function(e, user){
+  		console.log("User" + user.id + "recently logged in!");
+  		//save current user on rootScope (parent of all the scope in the application)
+  		$rootScope.currentUser = user;
+  	});
+
+  	$rootScope.$on("$firebaseSimpleLogin:logout", function(){
+  		//all other scopes can see that there is no user, no app for you
+  		$rootScope.currentUser = null;
+  	});
+
   	return authServiceObject;
   });
   
