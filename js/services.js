@@ -93,15 +93,24 @@ angular.module('myApp.services', [])
 				//after creating the user, get the email and use firebase $add to 
 				//add an object(email)
 				//then get the user object passed into the function and get the email property from the user object
-				emails.$add({email: user.email});
-				authServiceObject.login(user);
+				
+
+				authServiceObject.login(user, function(){
+					//moving emails in here because login is syncronous and cannot determine when login happens
+					emails.$add({email: user.email});
+				});
 				//this is calling from the firebase api
 				//auth.$login('password', $scope.user);
 			});
   		},
-  		login: function(user){
+  		login: function(user, optionalCallback){
 			auth.$login('password', user).then(function(data){
 				console.log(data);
+
+				if (optionalCallback){
+					optionalCallback();
+				}
+
 				$location.path('/waitlist');
 			});
 
