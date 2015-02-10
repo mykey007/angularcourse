@@ -9,23 +9,77 @@
 // 90% of the time, either .value() or .factory() will get the job done for services 
 // service doesnt have access to the scope object so we need to inject the 
 angular.module('myApp.services', [])
-  .value('FIREBASE_URL', 'https://dazzling-torch-8938.firebaseio.com/')
-  
-  .factory('partyService', function($firebase, FIREBASE_URL){
-  	var partiesRef = new Firebase(FIREBASE_URL + 'parties');
-  	var parties = $firebase(partiesRef);
 
-  	var partyServiceObject ={
-  		parties: parties,
-  		saveParty: function(party){
-  			parties.$add(party);
+  .value('FIREBASE_URL', 'https://dazzling-torch-8938.firebaseio.com/')
+
+  .factory('dataService', function($firebase, FIREBASE_URL){
+  	var dataReference = new Firebase(FIREBASE_URL);
+  	var fireData = $firebase(dataReference);
+
+  	return fireData;
+  })
+  .factory('partyService', function(dataService /*, $firebase, FIREBASE_URL*/){
+  	//var partiesRef = new Firebase(FIREBASE_URL + 'parties');
+  	//var parties = $firebase(partiesRef);
+
+  	// the child method will get the location
+  	var parties = dataService.$child('parties');
+  	//for new data structure							
+  	var users = dataService.$child('users');
+
+  	var partyServiceObject = {
+  		//parties: parties, this was refrencing var parties
+  		saveParty: function(party, userId){
+
+  		//  save the data to a new location,to users, 
+  		//  so it loads for an user, that;s why we are passing in userId
+  		//	parties.$add(party);
+  		users.$child(userId).$child('parties').$add(party);
   		//	$scope.parties.$add($scope.newParty);
 		//	$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
 
+  		},
+  		//use a method to load parties based on single user
+  		getPartiesByUserId: function(userId){
+  			return users.$child(userId).$child('parties');
   		}
   	};
   	return partyServiceObject;
   })
+
+  .factory('textMessageService', function(dataService, /*$firebase, FIREBASE_URL,*/ partyService){
+	//add object to db
+/*
+	var textMessageRef = new Firebase(FIREBASE_URL + 'textMessages');
+	var textMessages = $firebase(textMessageRef);
+*/
+	var textMessages = dataService.$child('textMessages');
+
+	var textMessageServiceObject ={
+		sendTextMessage: function(party, userId){
+			var newTextMessage = {
+				//must access party info, get from controller
+				phoneNumber: party.phone,
+				size: party.size,
+				name: party.name
+			};
+			textMessages.$add(newTextMessage);
+		/*
+			// modify the notified property to yes and
+			// saving the local changes and push them to firebase
+			// wont work because partyService doesn't have the parties property
+			party.notified = 'Yes';
+			//$scope.parties.$save(party.$id);
+			partyService.parties.$save(party.$id);
+		*/
+		//grab the userId's party id and update notified to yes
+		partyService.getPartiesByUserId(userId).$child(party.$id).$update({notified: 'Yes'});
+		}
+	};
+
+	return textMessageServiceObject;
+  })
+
   .factory('authService',function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL){
   	var authRef = new Firebase(FIREBASE_URL); //brought over for auth
 	var auth = $firebaseSimpleLogin(authRef);
@@ -50,6 +104,9 @@ angular.module('myApp.services', [])
   		logout: function(){
 			auth.$logout();
 			$location.path('/');
+  		},
+  		getCurrentUser: function(){
+  			return auth.$getCurrentUser();
   		}
   	};
 
@@ -59,7 +116,7 @@ angular.module('myApp.services', [])
 
   	//firebase exxample
   	$rootScope.$on("$firebaseSimpleLogin:login", function(e, user){
-  		console.log("User" + user.id + "recently logged in!");
+  		console.log("User " + user.id + " recently logged in!");
   		//save current user on rootScope (parent of all the scope in the application)
   		$rootScope.currentUser = user;
   	});

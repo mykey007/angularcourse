@@ -13,11 +13,24 @@ angular.module('myApp.controllers', [])
 	.controller('LandingPageController', [function(){
 
 	}])
-	.controller('WaitListController', ['$scope', 'partyService', function($scope, partyService){
+	.controller('WaitListController', ['$scope', 'partyService', 'authService', 'textMessageService',function($scope, partyService, authService, textMessageService){
 		// connecting $scope.parties to live firebase data
 
 		//binds firebase parties to the scope
-		$scope.parties = partyService.parties;
+		//no more parties property, in the service
+		//$scope.parties = partyService.parties;
+
+		//Bind user's parties to $scope.parties.
+		//call authService and use the getCurrentUser method from sericves.js
+		//and return user object
+		authService.getCurrentUser().then(function(user){
+			//if logged in
+			if (user){
+				//$scope.parties is used by the template to iterate over
+				$scope.parties = partyService.getPartiesByUserId(user.id);
+			}
+		})
+
 		// object to store data from waitlist form
 		$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
 
@@ -28,24 +41,13 @@ angular.module('myApp.controllers', [])
 			//take party object and put it in the parties array
 		//	$scope.parties.$add($scope.newParty);
 		//	$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
-		partyService.saveParty($scope.newParty);
-		$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
+			partyService.saveParty($scope.newParty, $scope.currentUser.id);
+			$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
 		};
 
 		//function to send text message to a party
 		$scope.sendTextMessage = function(party){
-			//add object to db
-			var textMessageRef = new Firebase(FIREBASE_URL + 'textMessages');
-			var textMessages = $firebase(textMessageRef);
-			var newTextMessage = {
-				phoneNumber: party.phone,
-				size: party.size,
-				name: party.name
-			};
-			textMessages.$add(newTextMessage);
-			//code here for notified
-			party.notified = 'Yes';
-			$scope.parties.$save(party.$id);
+			textMessageService.sendTextMessage(party, $scope.currentUser.id);
 		};
 	}])
 	.controller('AuthController', ['$scope', 'authService', function($scope, authService){
