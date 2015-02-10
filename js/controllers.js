@@ -3,9 +3,8 @@
 /* create some services
 	services are javascript functions and properties of related tasks you want to accoomplish
 	code resue and avoidance of repetition.
-	we made FIREBASE_URL to handle the url strings
-
-	*/
+	ex: FIREBASE_URL to handle the url strings
+*/
 
 
 /* Controllers */
