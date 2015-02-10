@@ -23,7 +23,7 @@ angular.module('myApp.services', [])
   	//var parties = $firebase(partiesRef);
 
   	// the child method will get the location
-  	var parties = dataService.$child('parties');
+  	//var parties = dataService.$child('parties'); dont have parties anymore
   	//for new data structure							
   	var users = dataService.$child('users');
 
@@ -80,15 +80,20 @@ angular.module('myApp.services', [])
 	return textMessageServiceObject;
   })
 
-  .factory('authService',function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL){
-  	var authRef = new Firebase(FIREBASE_URL); //brought over for auth
+  .factory('authService',function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL, dataService){
+  	var authRef = new Firebase(FIREBASE_URL); //brought over for authentication
 	var auth = $firebaseSimpleLogin(authRef);
+	var emails = dataService.$child('emails');
 
   	var authServiceObject = {
   		register: function(user){
   			auth.$createUser(user.email, user.password).then(function(data){
-				//checkout what's happening under the hood
+				//checkout what's happening in the console
 				console.log(data);
+				//after creating the user, get the email and use firebase $add to 
+				//add an object(email)
+				//then get the user object passed into the function and get the email property from the user object
+				emails.$add({email: user.email});
 				authServiceObject.login(user);
 				//this is calling from the firebase api
 				//auth.$login('password', $scope.user);
@@ -114,9 +119,9 @@ angular.module('myApp.services', [])
   	//have a current user object saved when logged in and deleted on logout
   	//adding this for login/logout links to appear
 
-  	//firebase exxample
+  	//firebase example
   	$rootScope.$on("$firebaseSimpleLogin:login", function(e, user){
-  		console.log("User " + user.id + " recently logged in!");
+  		//console.log("User " + user.id + " recently logged in!");
   		//save current user on rootScope (parent of all the scope in the application)
   		$rootScope.currentUser = user;
   	});
@@ -128,9 +133,3 @@ angular.module('myApp.services', [])
 
   	return authServiceObject;
   });
-  
-  /* But wait.. There's More!
-  .factory('FIREBASE_URL', function(){
-  	return 'https://dazzling-torch-8938.firebaseio.com/'; 
-  });
-  */

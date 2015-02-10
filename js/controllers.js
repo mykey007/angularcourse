@@ -27,8 +27,8 @@ angular.module('myApp.controllers', [])
 			if (user){
 				//$scope.parties is used by the template to iterate over
 				$scope.parties = partyService.getPartiesByUserId(user.id);
-			}
-		})
+			};
+		});
 
 		// object to store data from waitlist form
 		$scope.newParty = {name: '', phone: '', size: '', done: false, notified: "No"};
